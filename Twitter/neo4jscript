@@ -4,7 +4,7 @@ CREATE (usuario:Usuario{uid:row.usuario_id, nombre:row.username});
 
 //Crear nodos (Tweet)
 LOAD CSV WITH HEADERS FROM 'file:///tweets.csv' AS row
-CREATE (tweet:Tweet{tid:row.tweet_id, tweet:row.tweet});
+CREATE (tweet:Tweet{tid:row.tweet_id, tweet:row.tweet, fecha:row.date});
 
 //Crear nodos (Hashtag)
 LOAD CSV WITH HEADERS FROM 'file:///hashtags.csv' AS row 
