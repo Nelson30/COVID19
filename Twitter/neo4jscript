@@ -1,48 +1,47 @@
 //Crear nodos (Usuario)
 LOAD CSV WITH HEADERS FROM 'file:///usuarios.csv' AS row
-CREATE (usuario:Usuario{uid:row.usuario_id, nombre:row.username});
+CREATE (usuario:UserAccount{uid:row.usuario_id, id:row.username, name:row.name});
 
 //Crear nodos (Tweet)
 LOAD CSV WITH HEADERS FROM 'file:///tweets.csv' AS row
-CREATE (tweet:Tweet{tid:row.tweet_id, tweet:row.tweet, fecha:row.date});
+CREATE (post:Post{tid:row.tweet_id, tweet:row.tweet});
 
 //Crear nodos (Hashtag)
 LOAD CSV WITH HEADERS FROM 'file:///hashtags.csv' AS row 
-CREATE (hashtag:Hashtag{hid:row.hashtag_id, hashtag:row.hashtags});
+CREATE (tag:Tag{hid:row.hashtag_id, hashtag:row.hashtags});
 
 //Crear nodos (Sitio)
 LOAD CSV WITH HEADERS FROM 'file:///sitios.csv' AS row 
-CREATE (sitio:Sitio{sid:row.url_id, url:row.urls});
+CREATE (site:Site{sid:row.url_id, uri:row.urls});
 
 //Crear índice sobre uid sobre Usuario
-CREATE INDEX ON :Usuario(uid);
+CREATE INDEX ON :UserAccount(uid);
 
 //Crear índice sobre tid sobre Tweet
-CREATE INDEX ON :Tweet(tid);
+CREATE INDEX ON :Post(tid);
 
 //Crear índice sobre hid sobre Hashtag
-CREATE INDEX ON :Hashtag(hid);
+CREATE INDEX ON :Tag(hid);
 
 //Crear índice sobre sid sobre Sitio
-CREATE INDEX ON :Sitio(sid);
+CREATE INDEX ON :Site(sid);
 
 //Usuario escribe un Tweet
 LOAD CSV WITH HEADERS FROM 'file:///escribe.csv' AS row 
-MATCH (usuario:Usuario{uid:(row.usuario_id)}), (tweet:Tweet{tid:(row.tweet_id)}) 
-CREATE (usuario)-[:ESCRIBE]->(tweet);
+MATCH (usuario:UserAccount{uid:(row.usuario_id)}), (tweet:Post{tid:(row.tweet_id)}) 
+CREATE (usuario)-[:HAS_CREATOR]->(tweet);
 
 //Tweet menciona un Usuario
 LOAD CSV WITH HEADERS FROM 'file:///menciona.csv' AS row 
-MATCH (tweet:Tweet{tid:(row.tweet_id)}), (usuario:Usuario{uid:(row.usuario_id)}) 
-CREATE (tweet)-[:MENCIONA]->(usuario);
+MATCH (tweet:Post{tid:(row.tweet_id)}), (usuario:UserAccount{uid:(row.usuario_id)}) 
+CREATE (tweet)-[:MENTIONS]->(usuario);
 
 //Tweet contiene un Hashtag
 LOAD CSV WITH HEADERS FROM 'file:///contiene.csv' AS row 
-MATCH (tweet:Tweet{tid:(row.tweet_id)}), (hashtag:Hashtag{hid:(row.hashtag_id)}) 
-CREATE (tweet)-[:CONTIENE]->(hashtag);
+MATCH (tweet:Post{tid:(row.tweet_id)}), (hashtag:Tag{hid:(row.hashtag_id)}) 
+CREATE (tweet)-[:MENTIONS]->(hashtag);
 
 //Tweet referencia un Sitio
 LOAD CSV WITH HEADERS FROM 'file:///referencia.csv' AS row 
-MATCH (tweet:Tweet{tid:(row.tweet_id)}), (sitio:Sitio{sid:(row.url_id)}) 
-CREATE (tweet)-[:REFERENCIA]->(sitio);
-
+MATCH (tweet:Post{tid:(row.tweet_id)}), (sitio:Site{sid:(row.url_id)}) 
+CREATE (tweet)-[:MENTIONS]->(sitio);
